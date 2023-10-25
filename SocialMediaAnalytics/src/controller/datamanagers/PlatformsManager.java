@@ -7,19 +7,19 @@ public class PlatformsManager {
 	
 	public static Scanner scan = new Scanner(System.in);
 	
-	public void viewPlatforms() {
+	public void viewPlatforms() throws Exception {
 		
 	}
 	
-	public void addPlatform() {
+	public void addPlatform() throws Exception {
 		
 	}
 	
-	public void editPlatform() {
+	public void editPlatform() throws Exception {
 		
 	}
 	
-	public void deletePlatform() {
+	public void deletePlatform() throws Exception {
 		
 	}
 }

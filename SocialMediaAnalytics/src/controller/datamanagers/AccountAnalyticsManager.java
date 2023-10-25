@@ -7,11 +7,11 @@ public class AccountAnalyticsManager {
 	
 	public static Scanner scan = new Scanner(System.in);
 	
-	public void viewAnalytics() {
+	public void viewAnalytics() throws Exception {
 		
 	}
 	
-	public void viewPlatformAnalyticsFromAdmin(String username) {
+	public void viewPlatformAnalyticsFromAdmin(String username) throws Exception {
 		
 	}
 }

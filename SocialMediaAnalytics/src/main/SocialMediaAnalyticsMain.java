@@ -1,5 +1,6 @@
 package main;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import controller.datamanagers.AccountAnalyticsManager;
@@ -35,7 +36,7 @@ public class SocialMediaAnalyticsMain {
 			}			
 		}
 			MenuViewer.scan.close();
-			System.out.println("Program closed");
+			System.out.println("[Program closed]");
 	}
 
 	private static void loginMenu() {
@@ -43,7 +44,9 @@ public class SocialMediaAnalyticsMain {
 		while(!closeFlag) {
 			try {
 				MenuViewer.viewLoginMenu(); // loginMenu: create account, login, close
-				input = MenuViewer.scan.nextInt();
+				try {
+					input = MenuViewer.scan.nextInt();				
+				} catch(InputMismatchException e) { }
 				MenuViewer.scan.nextLine(); // clear scanner buffer
 				// ensure that a number from the menu is selected
 				if(input < LoginMenuSelection.createAccount || input > LoginMenuSelection.close) {
@@ -70,7 +73,8 @@ public class SocialMediaAnalyticsMain {
 	}
 	
 	private static void login() throws Exception {
-		String username, password = null;
+		String username = null;
+		String password = null;
 		// construct users to set up booleans for login conditions
 		usersVO = new UsersVO();
 		adminVO = new AdminVO();
@@ -94,10 +98,12 @@ public class SocialMediaAnalyticsMain {
 			// call method to check login credentials; if true, exit loop
 			checkLogin = usersManager.login(username, password);
 		}
-		// if loop reaches here, checkLogin is true and login worked; setLoggedin true
-		System.out.println("Login successful");
+		// if loop reaches here, checkLogin is true and login worked; setLoggedin true and assign field variables
+		System.out.println("[Login successful]");
 		System.out.println("-------------------------------------------------------------");
 		usersVO.setLoggedIn(true);
+		usersVO.setUsername(username);
+		usersVO.setPassword(password);
 	}
 
 	private static void adminMenu() throws Exception { // FOR ADMIN, viewing list of all accounts
@@ -105,7 +111,9 @@ public class SocialMediaAnalyticsMain {
 		while(adminVO.isAdminLoggedIn()) {
 			int input = 0;
 			MenuViewer.viewAdminMenu();
-			input = MenuViewer.scan.nextInt();
+			try {
+				input = MenuViewer.scan.nextInt();				
+			} catch(InputMismatchException e) { }
 			MenuViewer.scan.nextLine(); // clear scanner buffer
 			// ensure that a number from the menu is selected
 			if(input < AdminMenuSelection.viewUserFromAdmin || input > AdminMenuSelection.close) {
@@ -121,7 +129,7 @@ public class SocialMediaAnalyticsMain {
 				break;
 			case AdminMenuSelection.logout :
 				adminVO.setAdminLoggedIn(false);
-				System.out.println("Admin logout successful");
+				System.out.println("[Admin logout successful]");
 				System.out.println("-------------------------------------------------------------");
 				break;
 			case AdminMenuSelection.close : 
@@ -132,13 +140,15 @@ public class SocialMediaAnalyticsMain {
 		}
 	}
 
-	private static void viewUsersInfo(String username) { // FOR ADMIN, viewing / managing info of one account
+	private static void viewUsersInfo(String username) throws Exception { // FOR ADMIN, viewing / managing info of one account
 		UsersManager usersManager = new UsersManager();
 		AccountAnalyticsManager accountAnalyticsManager = new AccountAnalyticsManager();
 		while(adminVO.isAdminLoggedIn()) {
 			int input = 0;
 			MenuViewer.viewUsersInfo();
-			input = MenuViewer.scan.nextInt();
+			try {
+				input = MenuViewer.scan.nextInt();				
+			} catch(InputMismatchException e) { }
 			MenuViewer.scan.nextLine(); // clear scanner buffer
 			// ensure that a number from the menu is selected
 			if(input < AdminAccountSelection.viewAccountInfoFromAdmin || input > AdminAccountSelection.returnToAdminMenu) {
@@ -148,14 +158,14 @@ public class SocialMediaAnalyticsMain {
 			}
 			switch(input) {
 			case AdminAccountSelection.viewAccountInfoFromAdmin : 
-				usersManager.viewAccountInfoFromAdmin(username);
+				usersManager.viewAccountInfo(username);
 				break;
 			case AdminAccountSelection.viewPlatformAnalyticsFromAdmin :
 				accountAnalyticsManager.viewPlatformAnalyticsFromAdmin(username);
 				break;
 			case AdminAccountSelection.deleteAccountFromAdmin : 
 				usersManager.deleteAccountFromAdmin(username);
-				break;
+				return;
 			case AdminAccountSelection.returnToAdminMenu : 
 				return;
 			}			
@@ -166,7 +176,9 @@ public class SocialMediaAnalyticsMain {
 		while(usersVO.isLoggedIn()) {
 			int input = 0;
 			MenuViewer.viewMainMenu();
-			input = MenuViewer.scan.nextInt();
+			try {
+				input = MenuViewer.scan.nextInt();				
+			} catch(InputMismatchException e) { }
 			MenuViewer.scan.nextLine(); // clear scanner buffer
 			// ensure that a number from the menu is selected
 			if(input < MainMenuSelection.managePlatforms || input > MainMenuSelection.close) {
@@ -193,13 +205,15 @@ public class SocialMediaAnalyticsMain {
 		}			
 	}
 
-	private static void managePlatforms() { // FOR USER, secondary menu to view / manage platforms
+	private static void managePlatforms() throws Exception { // FOR USER, secondary menu to view / manage platforms
 		AccountAnalyticsManager accountAnalyticsManager = new AccountAnalyticsManager();
 		PlatformsManager platformsManager = new PlatformsManager();
 		while(usersVO.isLoggedIn()) {
 			int input = 0;
 			MenuViewer.viewPlatform();
-			input = MenuViewer.scan.nextInt();
+			try {
+				input = MenuViewer.scan.nextInt();				
+			} catch(InputMismatchException e) { }
 			MenuViewer.scan.nextLine(); // clear scanner buffer
 			// ensure that a number from the menu is selected
 			if(input < UserPlatformSelection.viewPlatforms || input > UserPlatformSelection.returnToMainMenu) {
@@ -229,32 +243,42 @@ public class SocialMediaAnalyticsMain {
 		}	
 	}
 
-	private static void manageAccount() { // FOR USER, secondary menu to manage account details
+	private static void manageAccount() throws Exception { // FOR USER, secondary menu to manage account details
 		UsersManager usersManager = new UsersManager();
 		while(usersVO.isLoggedIn()) {
 			int input = 0;
 			MenuViewer.viewUserAccount();
-			input = MenuViewer.scan.nextInt();
+			try {
+				input = MenuViewer.scan.nextInt();				
+			} catch(InputMismatchException e) { }
 			MenuViewer.scan.nextLine(); // clear scanner buffer
 			// ensure that a number from the menu is selected
-			if(input < UserAccountSelection.viewAccount || input > UserAccountSelection.returnToMainMenu) {
+			if(input < UserAccountSelection.viewAccountInfo || input > UserAccountSelection.returnToMainMenu) {
 				System.out.println("Please enter a number in the menu");
 				System.out.println("-------------------------------------------------------------");
 				continue;
 			}
 			switch(input) {
-			case UserAccountSelection.viewAccount : 
-				usersManager.viewAccount();
+			case UserAccountSelection.viewAccountInfo : 
+				usersManager.viewAccountInfo(usersVO.getUsername());
 				break;
-			case UserAccountSelection.editAccount :
-				usersManager.editAccount();
+			case UserAccountSelection.editAccountInfo :
+				usersManager.editAccountInfo(usersVO.getUsername());
 				break;
 			case UserAccountSelection.deleteAccount :
 				usersManager.deleteAccount();
-				break;
+				return; // if account is deleted, return to login menu
 			case UserAccountSelection.returnToMainMenu : 
 				return;
 			}
 		}	
+	}
+	
+	public static UsersVO getUsersVO() {
+		return usersVO;
+	}
+
+	public static void setUsersVO(UsersVO usersVO) {
+		SocialMediaAnalyticsMain.usersVO = usersVO;
 	}
 }
