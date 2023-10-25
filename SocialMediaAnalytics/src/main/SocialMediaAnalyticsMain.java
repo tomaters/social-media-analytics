@@ -15,6 +15,7 @@ import view.selectioninterfaces.LoginMenuSelection;
 import view.selectioninterfaces.MainMenuSelection;
 import view.selectioninterfaces.UserAccountSelection;
 import view.selectioninterfaces.UserPlatformSelection;
+import view.selectioninterfaces.ViewPlatformSelection;
 
 public class SocialMediaAnalyticsMain {
 
@@ -161,7 +162,7 @@ public class SocialMediaAnalyticsMain {
 				usersManager.viewAccountInfo(username);
 				break;
 			case AdminAccountSelection.viewPlatformAnalyticsFromAdmin :
-				accountAnalyticsManager.viewPlatformAnalyticsFromAdmin(username);
+				accountAnalyticsManager.viewTotalAnalyticsFromAdmin(username);
 				break;
 			case AdminAccountSelection.deleteAccountFromAdmin : 
 				usersManager.deleteAccountFromAdmin(username);
@@ -201,6 +202,7 @@ public class SocialMediaAnalyticsMain {
 			case MainMenuSelection.close : // close program
 				usersVO.setLoggedIn(false);
 				closeFlag = true;
+				System.out.println("close");
 			}
 		}			
 	}
@@ -216,17 +218,50 @@ public class SocialMediaAnalyticsMain {
 			} catch(InputMismatchException e) { }
 			MenuViewer.scan.nextLine(); // clear scanner buffer
 			// ensure that a number from the menu is selected
-			if(input < UserPlatformSelection.viewPlatforms || input > UserPlatformSelection.returnToMainMenu) {
+			if(input < UserPlatformSelection.viewPlatform || input > UserPlatformSelection.returnToMainMenu) {
 				System.out.println("Please enter a number in the menu");
 				System.out.println("-------------------------------------------------------------");
 				continue;
 			}
 			switch(input) {
-			case UserPlatformSelection.viewPlatforms : 
-				platformsManager.viewPlatforms();
+			case UserPlatformSelection.viewPlatform : 
+				System.out.println("View user platforms");
+				System.out.println("-------------------------------------------------------------");
+				platformsManager.checkPlatforms(SocialMediaAnalyticsMain.getUsersVO().getUsername()); // show existing platforms
+				String platformSelection = null;
+				// loop to assign platFormselection one of the five available platforms selected
+				while(platformSelection == null) {
+					int _input = 0;
+					
+					System.out.println("[Select Platform to view]");
+					System.out.println("[1] YouTube");
+					System.out.println("[2] Instagram");
+					System.out.println("[3] Facebook");
+					System.out.println("[4] Twitter");
+					System.out.println("[5] TikTok");
+					try {
+						_input = scan.nextInt();						
+						scan.nextLine(); // clear buffer
+					} catch(InputMismatchException e) {
+						System.out.println("Enter a number in the options");
+					} if(_input < ViewPlatformSelection.YouTube || _input > ViewPlatformSelection.TikTok) {						
+						System.out.println("Enter a number in the options");
+					}
+					switch(_input) {
+					case ViewPlatformSelection.YouTube : platformSelection = "YouTube"; break;
+					case ViewPlatformSelection.Instagram : platformSelection = "Instagram"; break;
+					case ViewPlatformSelection.Facebook : platformSelection = "Facebook"; break;
+					case ViewPlatformSelection.Twitter : platformSelection = "Twitter"; break;
+					case ViewPlatformSelection.TikTok : platformSelection = "TikTok";
+					}
+				}				
+				System.out.println("-------------------------------------------------------------");
+				System.out.println("[Viewing " + platformSelection + " analytics for " + usersVO.getUsername() + "]");
+				System.out.println("-------------------------------------------------------------");
+				platformsManager.viewPlatform(platformSelection);
 				break;
-			case UserPlatformSelection.viewAnalytics :
-				accountAnalyticsManager.viewAnalytics();
+			case UserPlatformSelection.viewTotalAnalytics :
+				accountAnalyticsManager.viewTotalAnalytics();
 				break;
 			case UserPlatformSelection.addPlatform :
 				platformsManager.addPlatform();

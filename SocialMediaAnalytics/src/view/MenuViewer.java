@@ -25,8 +25,8 @@ public class MenuViewer {
 	// secondary menu for user on view/change platform info
 	public static void viewPlatform() { // UserPlatformSelection
 		System.out.println("Manage user platforms");
-		System.out.println("[1] View user platforms"); // viewPlatforms
-		System.out.println("[2] View platform analytics"); // viewAnalytics
+		System.out.println("[1] View platform analytics"); // viewPlatforms
+		System.out.println("[2] View overall analytics"); // viewAnalytics
 		System.out.println("[3] Add user platform"); // addPlatform
 		System.out.println("[4] Edit user platform"); // editPlatform
 		System.out.println("[5] Delete user platform"); // deletePlatform

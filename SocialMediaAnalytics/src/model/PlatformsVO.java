@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public class PlatformsVO {
 	
+	private int platform_id;
 	private String platform_name; // name of platform (YouTube/TikTok/Instagram/Facebook); primary key
 	private String user_id; // foreign key from users
 	private int subscribers; // total number of subscribers (necessary)
@@ -27,6 +28,14 @@ public class PlatformsVO {
 		this.comments = comments;
 		this.engagement = engagement;
 		this.income = income;
+	}
+
+	public int getPlatform_id() {
+		return platform_id;
+	}
+
+	public void setPlatform_id(int platform_id) {
+		this.platform_id = platform_id;
 	}
 
 	public String getPlatform_name() {
