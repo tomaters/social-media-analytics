@@ -18,18 +18,18 @@ public class PlatformsManager {
 	public static Scanner scan = new Scanner(System.in);
 	private String accountUsername = SocialMediaAnalyticsMain.getUsersVO().getUsername();
 	
+	// show details for selected platform
 	public void viewPlatform(String platformSelection) throws Exception {
 		PlatformsDAO platformsDAO = new PlatformsDAO();
 		boolean platformExists = false; 
-		// show details for selected platform
 		platformExists = platformsDAO.viewPlatform(platformSelection, SocialMediaAnalyticsMain.getUsersVO().getUsername());
 		if(!platformExists) {
 			System.out.println("You do not have any data for this platform");
 		}
 		System.out.println("-------------------------------------------------------------");
 	}
-	
-	public void checkPlatforms(String username) throws Exception { // returns status of platforms user has
+	// returns status of platforms user has
+	public void checkPlatforms(String username) throws Exception { 
 		PlatformsDAO platformsDAO = new PlatformsDAO();
 		ArrayList<String> userPlatforms = new ArrayList<String>();
 		userPlatforms = platformsDAO.checkPlatforms(username);
@@ -50,7 +50,7 @@ public class PlatformsManager {
 			System.out.println("-------------------------------------------------------------");
 		}
 	}
-	
+	// add a platform to user account
 	public void addPlatform() throws Exception {
 		checkPlatforms(accountUsername); // if platforms are full, return
 		PlatformsDAO platformsDAO = new PlatformsDAO();
@@ -85,13 +85,16 @@ public class PlatformsManager {
 		platformsDAO.addPlatform(platformsVO);
 		// update engagement variable
 		platformsDAO.calculateEngagement();
+		// update totals in account_analytics
+		accountAnalyticsDAO.updateStatistics(accountUsername);
 		System.out.println("-------------------------------------------------------------");
 	}
-	
+	// edit platform in user account
 	public void editPlatform() throws Exception {
 		checkPlatforms(accountUsername); // if platforms are full, return
 		PlatformsDAO platformsDAO = new PlatformsDAO();
 		PlatformsVO platformsVO = new PlatformsVO();
+		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		String platformSelection = null;
 		boolean platformExists = false;
 		// method to make user select one of the available platforms
@@ -121,20 +124,25 @@ public class PlatformsManager {
 		platformsDAO.editPlatform(platformsVO, platformSelection);
 		// update engagement variable
 		platformsDAO.calculateEngagement();
+		// update totals in account_analytics
+		accountAnalyticsDAO.updateStatistics(accountUsername);
 		System.out.println("-------------------------------------------------------------");
 	}
-	
+	// delete platform in user account
 	public void deletePlatform() throws Exception {
 		System.out.println("[Delete platform data]");
 		PlatformsDAO platformsDAO = new PlatformsDAO();
+		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		String platformSelection = null;
 		checkPlatforms(accountUsername);
 		// method to make user select one of the available platforms
 		platformSelection = selectPlatform();
 		platformsDAO.deletePlatform(accountUsername, platformSelection);
+		// update totals in account_analytics
+		accountAnalyticsDAO.updateStatistics(accountUsername);
 		System.out.println("-------------------------------------------------------------");
 	}
-	
+	// method to return platform data input by user
 	public int[] inputPlatformData() throws Exception {
 		// input new platform details
 		int[] inputPlatformData = new int[NUM_INPUT_DATA];
@@ -179,12 +187,13 @@ public class PlatformsManager {
 		}
 		return inputPlatformData;
 	}
+	//method to return a platform selected by the user
 	public String selectPlatform() {
 		String platformSelection = null;
 		while(platformSelection == null) { // enrsure that a set platform is input into platformSelection
 			int input = 0;
 			
-			System.out.println("[Select a platform to edit]");
+			System.out.println("[Select a platform]");
 			System.out.println("[1] YouTube");
 			System.out.println("[2] Instagram");
 			System.out.println("[3] Facebook");

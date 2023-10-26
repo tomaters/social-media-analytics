@@ -1,7 +1,7 @@
 package model;
 
 import java.util.Objects;
-
+// should I just inherit PlatformsVO?
 public class AccountAnalyticsVO {
 	
 	private int analytics_id; // serial number; increments by 1; primary key

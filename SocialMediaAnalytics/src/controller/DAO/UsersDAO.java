@@ -219,6 +219,7 @@ public class UsersDAO {
 			}
 		} catch (SQLException e) {
 			System.out.println("SQL Error");
+			e.printStackTrace();
 		} catch (Exception e) {
 			System.out.println("Java error");
 		} finally {

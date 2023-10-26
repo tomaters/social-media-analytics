@@ -3,6 +3,8 @@ package controller.datamanagers;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import controller.DAO.AccountAnalyticsDAO;
+import controller.DAO.PlatformsDAO;
 import controller.DAO.UsersDAO;
 import main.SocialMediaAnalyticsMain;
 import model.Accounts.UsersVO;
@@ -16,19 +18,18 @@ public class UsersManager {
 	private final int updateEmail = 4;
 	private final int returnToMainMenu = 5;
 	private static final String[] column_names = {"user_name", "user_id", "user_pass", "user_email"};
-	
 	public static Scanner scan = new Scanner(System.in);
 	
+	// create an account
 	public void createAccount() throws Exception {
 		UsersVO usersVO = new UsersVO();
 		UsersDAO usersDAO = new UsersDAO();
-		
+		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		String name = null;
 		String username = null;
 		String password = null;
 		String email = null;
 		boolean usernameOverlaps = false;
-		
 		System.out.println("[Create an account] Enter user information");
 		System.out.println("-------------------------------------------------------------");
 		do { // loop to check name length
@@ -77,7 +78,10 @@ public class UsersManager {
 		usersVO.setUsername(username);
 		usersVO.setPassword(password);
 		usersVO.setEmail(email);
+		// insert user tuple into database
 		usersDAO.createAccount(usersVO);
+		// inser default account_analytics tuple into database
+		accountAnalyticsDAO.insertDefaultRow(username);
 		System.out.println("-------------------------------------------------------------");
 	}
 	
@@ -91,7 +95,7 @@ public class UsersManager {
 		return checkLogin;
 	}
 	
-	public String viewAllUsers() throws Exception { // for admin only, returns String username delected or breaks
+	public String viewAllUsers() throws Exception { // for admin only, returns String username selected or breaks
 		String username = null;
 		UsersDAO usersDAO = new UsersDAO();
 		while(true) {
@@ -109,10 +113,15 @@ public class UsersManager {
 	
 	public void deleteAccountFromAdmin(String username) throws Exception { // deleting from admin does not require re-authentication
 		UsersDAO usersDAO = new UsersDAO();
+		PlatformsDAO platformsDAO = new PlatformsDAO();
+		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		viewAccountInfo(username);
 		System.out.println("[Enter 'Y' to delete this account]");
 		String input = scan.nextLine();
 		if(input.toLowerCase().trim().equals("y")) {
+			// need to delete foreign key tuples first
+			platformsDAO.deleteAllPlatforms(username);
+			accountAnalyticsDAO.deleteAllAnalytics(username);
 			usersDAO.deleteAccount(username);
 		}
 		else System.out.println("[Deletion cancelled]");

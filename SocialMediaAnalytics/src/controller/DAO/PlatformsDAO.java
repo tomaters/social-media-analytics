@@ -189,6 +189,35 @@ public class PlatformsDAO {
 			}
 		}
 	}
+	// delete all platforms (for deleting user)
+	public void deleteAllPlatforms(String username) throws Exception {
+		String deleteStatement = "DELETE FROM platforms WHERE user_id = ?";
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		
+		try {
+			connection = DBUtil.makeConnection();
+			preparedStatement = connection.prepareStatement(deleteStatement);	
+			preparedStatement.setString(1, username);
+			int result = preparedStatement.executeUpdate();
+			
+			if(result >= 1) {
+//				System.out.printf("%s data successfully deleted%n"); // test
+			} 
+//			else System.out.println("Platform data failed to delete. Try again");
+		} catch(SQLException e) {
+			System.out.println("SQL Error");
+		} catch(Exception e) {
+			System.out.println("Java Error");
+		} finally {
+			try {
+				if(preparedStatement != null) preparedStatement.close();
+				if(connection != null) connection.close();
+			} catch(SQLException e) {
+				System.out.println("SQL Error");
+			}
+		}
+	}
 	// return ArrayList<String> of the platforms that the user has 
 	public ArrayList<String> checkPlatforms(String username) throws Exception {
 		String selectStatement = "SELECT platform_name FROM platforms WHERE user_id = ?"; 
