@@ -4,7 +4,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import controller.DAO.AccountAnalyticsDAO;
-import controller.DAO.PlatformsDAO;
+// import controller.DAO.PlatformsDAO;
 import controller.DAO.UsersDAO;
 import main.SocialMediaAnalyticsMain;
 import model.Accounts.UsersVO;
@@ -113,15 +113,20 @@ public class UsersManager {
 	
 	public void deleteAccountFromAdmin(String username) throws Exception { // deleting from admin does not require re-authentication
 		UsersDAO usersDAO = new UsersDAO();
-		PlatformsDAO platformsDAO = new PlatformsDAO();
-		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
+		
+		// not necessary after ON DELETE CASCADE
+//		PlatformsDAO platformsDAO = new PlatformsDAO();
+//		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO(); 
 		viewAccountInfo(username);
 		System.out.println("[Enter 'Y' to delete this account]");
 		String input = scan.nextLine();
 		if(input.toLowerCase().trim().equals("y")) {
-			// need to delete foreign key tuples first
-			platformsDAO.deleteAllPlatforms(username);
-			accountAnalyticsDAO.deleteAllAnalytics(username);
+			
+			// needed to delete foreign key tuples first, but now not necessary after ON DELETE CASCADE
+//			platformsDAO.deleteAllPlatforms(username);
+//			accountAnalyticsDAO.deleteAllAnalytics(username); 
+			
+			// delete account
 			usersDAO.deleteAccount(username);
 		}
 		else System.out.println("[Deletion cancelled]");
@@ -249,7 +254,7 @@ public class UsersManager {
 			System.out.println("-------------------------------------------------------------");
 		}
 		else {
-			System.out.println("[Authentication failed");
+			System.out.println("[User details are incorrect. Try again]");
 			System.out.println("-------------------------------------------------------------");
 		}
 	}

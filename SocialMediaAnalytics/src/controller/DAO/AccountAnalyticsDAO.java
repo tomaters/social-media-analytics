@@ -39,6 +39,8 @@ public class AccountAnalyticsDAO {
 		}
 	}
 	// updates tuple as aggregate of all subscribers, engagement, and income, to be called when adding a new platform 
+	// changed to a TRIGGER in Oracle to UPDATE account_analytics upon INSERT
+	/*
 	public void updateStatistics(String username) throws Exception{ 
 		String updateStatement = "UPDATE account_analytics "
 				+ "SET total_subscribers = (SELECT SUM(subscribers) FROM platforms), "
@@ -70,6 +72,7 @@ public class AccountAnalyticsDAO {
 			}
 		}
 	}
+	*/
 	// view platform name, engagement, income subscribers
 	public void viewEachAnalytics(String username) throws Exception {
 		String selectStatement = "SELECT a.user_id, platform_name, engagement, income, subscribers "
@@ -112,7 +115,38 @@ public class AccountAnalyticsDAO {
 				System.out.println("SQL Error");
 			}
 		} 
+	}	
+	/*
+	//delete all analytics (for deleting user) - not necessary after adding ON DELETE CASCADE
+	public void deleteAllAnalytics(String username) throws Exception {
+		String deleteStatement = "DELETE FROM account_analytics WHERE user_id = ?";
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		
+		try {
+			connection = DBUtil.makeConnection();
+			preparedStatement = connection.prepareStatement(deleteStatement);	
+			preparedStatement.setString(1, username);
+			int result = preparedStatement.executeUpdate();
+			
+			if(result >= 1) {
+//				System.out.printf("%s data successfully deleted%n"); // test
+			} 
+//			else System.out.println("Platform data failed to delete. Try again");
+		} catch(SQLException e) {
+			System.out.println("SQL Error");
+		} catch(Exception e) {
+			System.out.println("Java Error");
+		} finally {
+			try {
+				if(preparedStatement != null) preparedStatement.close();
+				if(connection != null) connection.close();
+			} catch(SQLException e) {
+				System.out.println("SQL Error");
+			}
+		}
 	}
+	*/
 	// view aggregate subscribers, engagement, and income for a user
 	public void viewTotalAnalytics(String username) throws Exception {
 		String selectStatement = "SELECT total_engagement, total_subscribers, total_income FROM account_analytics "
@@ -151,34 +185,5 @@ public class AccountAnalyticsDAO {
 				System.out.println("SQL Error");
 			}
 		} 
-	}
-	// delete all analytics (for deleting user)
-	public void deleteAllAnalytics(String username) throws Exception {
-		String deleteStatement = "DELETE FROM account_analytics WHERE user_id = ?";
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		
-		try {
-			connection = DBUtil.makeConnection();
-			preparedStatement = connection.prepareStatement(deleteStatement);	
-			preparedStatement.setString(1, username);
-			int result = preparedStatement.executeUpdate();
-			
-			if(result >= 1) {
-//				System.out.printf("%s data successfully deleted%n"); // test
-			} 
-//			else System.out.println("Platform data failed to delete. Try again");
-		} catch(SQLException e) {
-			System.out.println("SQL Error");
-		} catch(Exception e) {
-			System.out.println("Java Error");
-		} finally {
-			try {
-				if(preparedStatement != null) preparedStatement.close();
-				if(connection != null) connection.close();
-			} catch(SQLException e) {
-				System.out.println("SQL Error");
-			}
-		}
 	}
 }

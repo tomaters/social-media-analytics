@@ -1,16 +1,18 @@
 package controller.DAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import controller.DBUtil;
 import main.SocialMediaAnalyticsMain;
 import model.Accounts.UsersVO;
 
 public class UsersDAO {
-	// check login
+	// check login, returns true or false depending on credentials
 	public boolean login(String username, String password) throws Exception {
 		String selectStatement = "SELECT * FROM users WHERE user_id = ? AND user_pass = ?";
 		Connection connection = null;
@@ -42,32 +44,45 @@ public class UsersDAO {
 		}
 		return checkLogin;
 	}
-	// create account
+	// create account, changed from PreparedStatement to CallableStatement
 	public void createAccount(UsersVO usersVO) throws Exception {
-		String insertStatement = "INSERT INTO users VALUES(?, ?, ?, ?)";
+//		String insertStatement = "INSERT INTO users VALUES(?, ?, ?, ?)";
+		String insertStatement = "{call add_user(?, ?, ?, ?, ?)}";
+		String result = null;		
 		Connection connection = null;
-		PreparedStatement preparedStatement = null;
+//		PreparedStatement preparedStatement = null;
+		CallableStatement callableStatement = null;
 		
 		try {
 			connection = DBUtil.makeConnection();
-			preparedStatement = connection.prepareStatement(insertStatement);
-			preparedStatement.setString(1, usersVO.getName());
-			preparedStatement.setString(2, usersVO.getUsername());
-			preparedStatement.setString(3, usersVO.getPassword());
-			preparedStatement.setString(4, usersVO.getEmail());
+//			preparedStatement = connection.prepareStatement(insertStatement);
+//			preparedStatement.setString(1, usersVO.getName());
+//			preparedStatement.setString(2, usersVO.getUsername());
+//			preparedStatement.setString(3, usersVO.getPassword());
+//			preparedStatement.setString(4, usersVO.getEmail());
+//			int result = preparedStatement.executeUpdate();
+//			if(result == 1) {
+//				System.out.println("[Sign up complete]");
+//			} else {
+//				System.out.println("[Sign up failed. Try again]");
+//			}
+			callableStatement = connection.prepareCall(insertStatement);
+			callableStatement.setString(1, usersVO.getName());
+			callableStatement.setString(2, usersVO.getUsername());
+			callableStatement.setString(3, usersVO.getPassword());
+			callableStatement.setString(4, usersVO.getEmail());
+			callableStatement.registerOutParameter(5, Types.VARCHAR);
+			callableStatement.executeUpdate();
+			result = callableStatement.getString(5);
+			System.out.println(result);
 			
-			int result = preparedStatement.executeUpdate();
-			if(result == 1) {
-				System.out.println("[Sign up complete]");
-			} else {
-				System.out.println("[Sign up failed. Try again]");
-			}
 		} catch(SQLException e) {
 			System.out.println("SQL Error");
 		} finally {
 			try {
 				if(connection != null) connection.close();
-				if(preparedStatement != null) preparedStatement.close();
+//				if(preparedStatement != null) preparedStatement.close();
+				if(callableStatement != null) callableStatement.close();
 			} catch(SQLException e) {
 				System.out.println("SQL Error");
 			}
@@ -201,22 +216,31 @@ public class UsersDAO {
 			}
 		}
 	}
-	// delete account
+	// delete account (changed from PreparedStatement to CallableStatement)
 	public void deleteAccount(String username) throws Exception {
-		String deleteStatement = "DELETE FROM users WHERE user_id = ?";
+//		String deleteStatement = "DELETE FROM users WHERE user_id = ?";
+		String deleteStatement = "{call delete_user(?, ?)}";
+		String result = null;
 		Connection connection = null;
-		PreparedStatement preparedStatement = null;
+//		PreparedStatement preparedStatement = null;
+		CallableStatement callableStatement = null;
 		
 		try {
 			connection = DBUtil.makeConnection();
-			preparedStatement = connection.prepareStatement(deleteStatement);
-			preparedStatement.setString(1, username);
-			int result = preparedStatement.executeUpdate();
-			if (result == 1) {
-				System.out.println("[User account deleted successfully]");
-			} else {
-				System.out.println("[User failed to delete. Try again]");
-			}
+//			preparedStatement = connection.prepareStatement(deleteStatement);
+//			preparedStatement.setString(1, username);
+//			int result = preparedStatement.executeUpdate();
+//			if (result == 1) {
+//				System.out.println("[User account deleted successfully]");
+//			} else {
+//				System.out.println("[User failed to delete. Try again]");
+//			}
+			callableStatement = connection.prepareCall(deleteStatement);
+			callableStatement.setString(1, username);
+			callableStatement.registerOutParameter(2, Types.VARCHAR);
+			callableStatement.executeUpdate();
+			result = (callableStatement.getString(2));
+			System.out.println(result);
 		} catch (SQLException e) {
 			System.out.println("SQL Error");
 			e.printStackTrace();
@@ -224,16 +248,15 @@ public class UsersDAO {
 			System.out.println("Java error");
 		} finally {
 			try {
-				if (preparedStatement != null)
-					preparedStatement.close();
-				if (connection != null)
-					connection.close();
+//				if (preparedStatement != null) preparedStatement.close();
+				if (callableStatement != null) callableStatement.close();
+				if (connection != null)	connection.close();
 			} catch (SQLException e) {
 				System.out.println("SQL Error");
 			}
 		}
 	}
-	// edit account details
+	// edit account details; maintain as PreparedStatement (keep logic in Java) because of userVariable selection
 	public void editAccountInfo(String userVariable, String newAccountDetail, String username) throws Exception {
 		String updateStatement = "UPDATE users SET " + userVariable + " = ? WHERE user_id = ?";
 		Connection connection = null;

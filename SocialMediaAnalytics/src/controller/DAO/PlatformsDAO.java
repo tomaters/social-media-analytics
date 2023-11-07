@@ -1,16 +1,19 @@
 package controller.DAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 
 import controller.DBUtil;
 import model.PlatformsVO;
 
 public class PlatformsDAO {
-	// update engagement statistic
+	// update engagement statistic, not needed because calculation in add_platform procedure covers it
+/*
 	public void calculateEngagement() { // updates platforms (sum of views, likes, comments) into database; applies to all tuples
 		String updateStatement = "UPDATE platforms SET engagement = COALESCE(views, 0) + COALESCE(likes, 0) + COALESCE(comments,0)";
 		Connection connection = null;
@@ -42,6 +45,8 @@ public class PlatformsDAO {
 			}
 		}
 	}
+*/
+	
 	// view platform statistics
 	public boolean viewPlatform(String platformSelection, String username) throws Exception {
 		String selectStatement = "SELECT * FROM platforms WHERE platform_name = ? AND user_id = ?";
@@ -87,15 +92,18 @@ public class PlatformsDAO {
 		} 
 		return platformExists;
 	}
-	// add platform
+	// add platform, changed from PreparedStatement to CallableStatement
 	public void addPlatform(PlatformsVO platformsVO) throws Exception {
-		String insertStatement = "INSERT INTO platforms(platform_id, platform_name, user_id, subscribers, views, likes, comments, income) "
-				+ "VALUES(platform_seq.nextval, ?, ?, ?, ?, ?, ?, ?)";
+//		String insertStatement = "INSERT INTO platforms(platform_id, platform_name, user_id, subscribers, views, likes, comments, income) "
+//				+ "VALUES(platform_seq.nextval, ?, ?, ?, ?, ?, ?, ?)";
+		String insertStatement = "{call add_platform(?, ?, ?, ?, ?, ?, ?, ?)}";
+		String result = null;
 		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		
+		CallableStatement callableStatement = null;
+//		PreparedStatement preparedStatement = null;
 		try {
 			connection = DBUtil.makeConnection();
+/*
 			preparedStatement = connection.prepareStatement(insertStatement);
 			preparedStatement.setString(1, platformsVO.getPlatform_name());
 			preparedStatement.setString(2, platformsVO.getUser_id());			
@@ -104,7 +112,6 @@ public class PlatformsDAO {
 			preparedStatement.setInt(5, platformsVO.getLikes());
 			preparedStatement.setInt(6, platformsVO.getComments());
 			preparedStatement.setInt(7, platformsVO.getIncome());
-			
 			int result = preparedStatement.executeUpdate();
 			if(result == 1) {
 				System.out.printf("Data for %s has successfully been registered%n", platformsVO.getPlatform_name());
@@ -112,6 +119,19 @@ public class PlatformsDAO {
 			else {
 				System.out.println("Platform registration failed. Try again");
 			}
+*/
+			callableStatement = connection.prepareCall(insertStatement);
+			callableStatement.setString(1, platformsVO.getPlatform_name());
+			callableStatement.setString(2, platformsVO.getUser_id());
+			callableStatement.setInt(3, platformsVO.getSubscribers());
+			callableStatement.setInt(4, platformsVO.getViews());
+			callableStatement.setInt(5, platformsVO.getLikes());
+			callableStatement.setInt(6, platformsVO.getComments());
+			callableStatement.setInt(7, platformsVO.getIncome());
+			callableStatement.registerOutParameter(8, Types.VARCHAR);
+			callableStatement.executeUpdate();
+			result = callableStatement.getString(8);
+			System.out.println(result);
 		} catch(SQLException e) {
 			System.out.println("SQL Error");
 			e.printStackTrace();
@@ -119,21 +139,25 @@ public class PlatformsDAO {
 			System.out.println("Java Error");
 		} finally {
 			try {
-				if(preparedStatement != null) preparedStatement.close();
+//				if(preparedStatement != null) preparedStatement.close();
+				if(callableStatement != null) callableStatement.close();
 				if(connection != null) connection.close();
 			} catch(SQLException e) {
 				System.out.println("SQL Error");
 			}
 		}
 	}
-	// edit platform
-	public void editPlatform(PlatformsVO platformsVO, String platformSelection) throws Exception {
-		String updateStatement = "UPDATE platforms SET subscribers = ?, views = ?, likes = ?, comments = ?, income = ? WHERE user_id = ? AND platform_name = ?";
+	// edit platform, changed from PreparedStatement to CallableStatement
+	public void editPlatform(PlatformsVO platformsVO) throws Exception {
+//		String updateStatement = "UPDATE platforms SET subscribers = ?, views = ?, likes = ?, comments = ?, income = ? WHERE user_id = ? AND platform_name = ?";
+		String updateStatement = "{call edit_platform(?, ?, ?, ?, ?, ?, ?, ?)}";
+		String result = null;
 		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		
+//		PreparedStatement preparedStatement = null;
+		CallableStatement callableStatement = null;
 		try {
 			connection = DBUtil.makeConnection();
+/*
 			preparedStatement = connection.prepareStatement(updateStatement);
 			preparedStatement.setInt(1, platformsVO.getSubscribers());
 			preparedStatement.setInt(2, platformsVO.getViews());
@@ -142,54 +166,79 @@ public class PlatformsDAO {
 			preparedStatement.setInt(5, platformsVO.getIncome());
 			preparedStatement.setString(6, platformsVO.getUser_id());
 			preparedStatement.setString(7, platformsVO.getPlatform_name());
-			
 			int result = preparedStatement.executeUpdate();
 			if(result == 1) {
 				System.out.println("Platform updated successfully");
 			} else System.out.println("Platform failed to update. Try again");
+*/
+			callableStatement = connection.prepareCall(updateStatement);
+			callableStatement.setInt(1, platformsVO.getSubscribers());
+			callableStatement.setInt(2, platformsVO.getViews());
+			callableStatement.setInt(3, platformsVO.getLikes());
+			callableStatement.setInt(4, platformsVO.getComments());
+			callableStatement.setInt(5, platformsVO.getIncome());
+			callableStatement.setString(6, platformsVO.getUser_id());
+			callableStatement.setString(7, platformsVO.getPlatform_name());
+			callableStatement.registerOutParameter(8, Types.VARCHAR);
+			callableStatement.executeUpdate();
+			result = callableStatement.getString(8);
+			System.out.println(result);
+			
 		} catch(SQLException e) {
 			System.out.println("SQL Error");
 		} catch(Exception e) {
 			System.out.println("Java Error");
 		} finally {
 			try {
-				if(preparedStatement != null) preparedStatement.close();
+//				if(preparedStatement != null) preparedStatement.close();
+				if(callableStatement != null) callableStatement.close();
 				if(connection != null) connection.close();
 			} catch(SQLException e) {
 				System.out.println("SQL Error");
 			}
 		}
 	}
-	// delete platform
+	// delete platform, changed from PreparedStatement to CallableStatement
 	public void deletePlatform(String username, String platformSelection) throws Exception {
-		String deleteStatement = "DELETE FROM platforms WHERE user_id = ? AND platform_name = ?";
+//		String deleteStatement = "DELETE FROM platforms WHERE user_id = ? AND platform_name = ?";
+		String deleteStatement = "{call delete_platform(?, ?, ?)}";
+		String result = null;
 		Connection connection = null;
-		PreparedStatement preparedStatement = null;
+//		PreparedStatement preparedStatement = null;
+		CallableStatement callableStatement = null;
 		
 		try {
 			connection = DBUtil.makeConnection();
-			preparedStatement = connection.prepareStatement(deleteStatement);	
-			preparedStatement.setString(1, username);
-			preparedStatement.setString(2, platformSelection);
-			int result = preparedStatement.executeUpdate();
-			
-			if(result == 1) {
-				System.out.printf("%s data successfully deleted%n", platformSelection);
-			} else System.out.println("Platform data failed to delete. Try again");
+//			preparedStatement = connection.prepareStatement(deleteStatement);	
+//			preparedStatement.setString(1, username);
+//			preparedStatement.setString(2, platformSelection);
+//			int result = preparedStatement.executeUpdate();
+//			if(result == 1) {
+//				System.out.printf("%s data successfully deleted%n", platformSelection);
+//			} else System.out.println("Platform data failed to delete. Try again");
+			callableStatement = connection.prepareCall(deleteStatement);
+			callableStatement.setString(1, username);
+			callableStatement.setString(2, platformSelection);
+			callableStatement.registerOutParameter(3, Types.VARCHAR);
+			callableStatement.executeUpdate();
+			result = callableStatement.getString(3);
+			System.out.println(result);
 		} catch(SQLException e) {
 			System.out.println("SQL Error");
 		} catch(Exception e) {
 			System.out.println("Java Error");
 		} finally {
 			try {
-				if(preparedStatement != null) preparedStatement.close();
+//				if(preparedStatement != null) preparedStatement.close();
+				if(callableStatement != null) callableStatement.close();
 				if(connection != null) connection.close();
 			} catch(SQLException e) {
 				System.out.println("SQL Error");
 			}
 		}
 	}
-	// delete all platforms (for deleting user)
+/*
+	// delete all platforms (for deleting user); not necessary after adding ON DELETE CASCADE
 	public void deleteAllPlatforms(String username) throws Exception {
 		String deleteStatement = "DELETE FROM platforms WHERE user_id = ?";
 		Connection connection = null;
@@ -218,6 +267,7 @@ public class PlatformsDAO {
 			}
 		}
 	}
+*/
 	// return ArrayList<String> of the platforms that the user has 
 	public ArrayList<String> checkPlatforms(String username) throws Exception {
 		String selectStatement = "SELECT platform_name FROM platforms WHERE user_id = ?"; 

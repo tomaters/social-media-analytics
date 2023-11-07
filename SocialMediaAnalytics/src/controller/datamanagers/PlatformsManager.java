@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import controller.DAO.AccountAnalyticsDAO;
+// import controller.DAO.AccountAnalyticsDAO; (CHANGED TO TRIGGERS)
 import controller.DAO.PlatformsDAO;
 import main.SocialMediaAnalyticsMain;
 import model.PlatformsVO;
@@ -55,7 +55,7 @@ public class PlatformsManager {
 		checkPlatforms(accountUsername); // if platforms are full, return
 		PlatformsDAO platformsDAO = new PlatformsDAO();
 		PlatformsVO platformsVO = new PlatformsVO();
-		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
+		// AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		String platformSelection = null;
 		boolean platformExists = false;
 		// method to make user select one of the available platforms
@@ -66,6 +66,7 @@ public class PlatformsManager {
 		if(platformExists) { // return if platform already exists
 			System.out.printf("You already have %s registered in the account%n", platformSelection);
 			System.out.println("Returning to manage platform menu...");
+			System.out.println("-------------------------------------------------------------");
 			return;
 		} 
 		// input new platform details (subscribers [0], views [1], likes [2], comments [3], income [4])
@@ -84,9 +85,9 @@ public class PlatformsManager {
 		// SQL method to add platform to database
 		platformsDAO.addPlatform(platformsVO);
 		// update engagement variable
-		platformsDAO.calculateEngagement();
-		// update totals in account_analytics
-		accountAnalyticsDAO.updateStatistics(accountUsername);
+//		platformsDAO.calculateEngagement();
+		// update totals in account_analytics (CHANGED TO TRIGGER)
+		// accountAnalyticsDAO.updateStatistics(accountUsername);
 		System.out.println("-------------------------------------------------------------");
 	}
 	// edit platform in user account
@@ -94,7 +95,7 @@ public class PlatformsManager {
 		checkPlatforms(accountUsername); // if platforms are full, return
 		PlatformsDAO platformsDAO = new PlatformsDAO();
 		PlatformsVO platformsVO = new PlatformsVO();
-		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
+		// AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		String platformSelection = null;
 		boolean platformExists = false;
 		// method to make user select one of the available platforms
@@ -109,7 +110,7 @@ public class PlatformsManager {
 			}
 		// input new platform details (subscribers [0], views [1], likes [2], comments [3], income [4])
 		int[] editPlatformData = new int[NUM_INPUT_DATA];
-		System.out.printf("[Enter information to add edit %s details]%n", platformSelection);
+		System.out.printf("[Enter information to edit %s details]%n", platformSelection);
 		editPlatformData = inputPlatformData(); // method retrieves data 
 		// insert values into platformsVO
 		platformsVO.setPlatform_name(platformSelection);
@@ -121,25 +122,25 @@ public class PlatformsManager {
 		platformsVO.setComments(editPlatformData[3]);
 		platformsVO.setIncome(editPlatformData[4]);
 		// SQL method to add platform to database
-		platformsDAO.editPlatform(platformsVO, platformSelection);
+		platformsDAO.editPlatform(platformsVO);
 		// update engagement variable
-		platformsDAO.calculateEngagement();
-		// update totals in account_analytics
-		accountAnalyticsDAO.updateStatistics(accountUsername);
+//		platformsDAO.calculateEngagement();
+		// update totals in account_analytics (CHANGED TO TRIGGER)
+		// accountAnalyticsDAO.updateStatistics(accountUsername);
 		System.out.println("-------------------------------------------------------------");
 	}
 	// delete platform in user account
 	public void deletePlatform() throws Exception {
 		System.out.println("[Delete platform data]");
 		PlatformsDAO platformsDAO = new PlatformsDAO();
-		AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
+		// AccountAnalyticsDAO accountAnalyticsDAO = new AccountAnalyticsDAO();
 		String platformSelection = null;
 		checkPlatforms(accountUsername);
 		// method to make user select one of the available platforms
 		platformSelection = selectPlatform();
 		platformsDAO.deletePlatform(accountUsername, platformSelection);
-		// update totals in account_analytics
-		accountAnalyticsDAO.updateStatistics(accountUsername);
+		// update totals in account_analytics (CHANGED TO TRIGGER)
+		// accountAnalyticsDAO.updateStatistics(accountUsername);
 		System.out.println("-------------------------------------------------------------");
 	}
 	// method to return platform data input by user
